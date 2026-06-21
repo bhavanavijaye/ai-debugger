@@ -5,7 +5,10 @@ from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, SystemMessage
 from typing import TypedDict, Annotated, List
 import operator
-from tools import speak, read_file, write_file, run_code, list_files, search_stackoverflow, git_commit
+from tools import read_file, write_file, run_code, list_files
+
+def speak(text):
+    print(f"Agent: {text}")  # Just print instead of speak on server
 
 load_dotenv()
 
