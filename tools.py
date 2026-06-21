@@ -1,21 +1,27 @@
 import subprocess
 import os
 import sys
+
+# Voice setup - works locally but not on cloud
 try:
     import pyttsx3
     engine = pyttsx3.init()
+    engine.setProperty('rate', 150)
+    engine.setProperty('volume', 1.0)
     HAS_VOICE = True
-except:
+except Exception:
     HAS_VOICE = False
     engine = None
-engine.setProperty('rate', 150)
-engine.setProperty('volume', 1.0)
 
 def speak(text):
+    """Speak text - works locally, prints on cloud"""
     print(f"\n🔊 Agent: {text}")
-    if HAS_VOICE and engine:
-        engine.say(text)
-        engine.runAndWait()
+    try:
+        if HAS_VOICE and engine:
+            engine.say(text)
+            engine.runAndWait()
+    except Exception:
+        pass
 
 def read_file(filepath: str) -> dict:
     """Read code from a file"""
