@@ -327,6 +327,7 @@ def debug_file(filepath: str):
     print(f"Attempts: {final_state['loop_count']}")
     print(f"Fixed file: {filepath}")
     print(f"Backup: {filepath}.backup")
+    return final_state
 
     if final_state.get("execution_result", {}).get("output"):
         print(f"\nProgram Output:\n{final_state['execution_result']['output']}")
