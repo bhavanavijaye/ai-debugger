@@ -1,18 +1,21 @@
 import subprocess
 import os
 import sys
-import pyttsx3
-
-# Initialize voice
-engine = pyttsx3.init()
+try:
+    import pyttsx3
+    engine = pyttsx3.init()
+    HAS_VOICE = True
+except:
+    HAS_VOICE = False
+    engine = None
 engine.setProperty('rate', 150)
 engine.setProperty('volume', 1.0)
 
 def speak(text):
-    """Speak text using Windows SAPI"""
     print(f"\n🔊 Agent: {text}")
-    engine.say(text)
-    engine.runAndWait()
+    if HAS_VOICE and engine:
+        engine.say(text)
+        engine.runAndWait()
 
 def read_file(filepath: str) -> dict:
     """Read code from a file"""
