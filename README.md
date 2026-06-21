@@ -1,1 +1,1 @@
-test trigger 1
+trigger test 999
