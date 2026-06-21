@@ -15,44 +15,44 @@ class CodeRequest(BaseModel):
 
 @app.post("/debug")
 async def debug_project(request: CodeRequest):
-    print("REQUEST RECEIVED")
 
-    return {
-        "status": "completed",
-        "message": "test successful"
-    }
-    
     results = []
-    
+
     for file in request.files:
         filepath = file.get("path", "")
         content = file.get("content", "")
-        
-        # Save file temporarily
+
+        print(f"Processing: {filepath}")
+
         temp_path = f"temp_{filepath.replace('/', '_')}"
-        with open(temp_path, "w") as f:
+
+        with open(temp_path, "w", encoding="utf-8") as f:
             f.write(content)
-        
-        # Debug it
-        result = debug_file(temp_path)
-        results.append({
-            "file": filepath,
-            "status": "fixed",
-            "result": result
-        })
-        
-        # Cleanup
-        os.remove(temp_path)
-    
+
+        try:
+            result = debug_file(temp_path)
+
+            results.append({
+                "file": filepath,
+                "status": "fixed",
+                "result": result
+            })
+
+        except Exception as e:
+
+            results.append({
+                "file": filepath,
+                "status": "failed",
+                "error": str(e)
+            })
+
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
     return {
         "status": "completed",
-        "results": results,
-        "message": "All files debugged successfully!"
+        "results": results
     }
-
-@app.get("/health")
-async def health():
-    return {"status": "running"}
 
 if __name__ == "__main__":
     import uvicorn
