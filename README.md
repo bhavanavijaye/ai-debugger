@@ -1,1 +1,1 @@
-trigger test 123
+trigger test 1
