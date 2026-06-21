@@ -15,7 +15,12 @@ class CodeRequest(BaseModel):
 
 @app.post("/debug")
 async def debug_project(request: CodeRequest):
-    speak("Received project from n8n. Starting to debug!")
+    print("REQUEST RECEIVED")
+
+    return {
+        "status": "completed",
+        "message": "test successful"
+    }
     
     results = []
     
