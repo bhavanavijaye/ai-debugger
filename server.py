@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import os
 import subprocess
 import tempfile
+from tools import speak
 from agent import debug_file
 
 app = FastAPI()
