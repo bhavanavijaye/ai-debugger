@@ -145,7 +145,7 @@ def code_executor(state: AgentState) -> AgentState:
 
     result = run_code(state["filepath"], state["language"])
 
-    if result["status"] == "PASSED":
+    if result.get("status") == "PASSED":
         speak("Excellent! The code is working perfectly now. All errors have been fixed!")
         return {**state, "execution_result": result, "status": "PASSED"}
     else:
