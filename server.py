@@ -76,7 +76,10 @@ async def debug_project(request: CodeRequest):
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
-    return {"status": "completed", "results": results}
+    return {
+    "status": "completed",
+    "results": results
+    }
 
 if __name__ == "__main__":
     import uvicorn
