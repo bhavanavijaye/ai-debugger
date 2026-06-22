@@ -6,6 +6,6 @@ langchain-core
 python-dotenv
 pyttsx3
 requests
-flash
+flask
 pydantic
 groq
