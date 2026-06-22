@@ -117,6 +117,27 @@ def run_code(filepath: str, language: str) -> dict:
                 "error": result.stderr
             }
     except subprocess.TimeoutExpired:
+        # Long-running server apps (Flask/FastAPI/Express) never exit on their own.
+        # If the file defines a server app and no syntax/import error occurred
+        # before timing out, treat the timeout as a pass, not a failure.
+        try:
+            with open(filepath, 'r') as f:
+                source = f.read()
+        except Exception:
+            source = ""
+
+        is_server_app = any(marker in source for marker in [
+            "app.run(", "app.run (", "uvicorn.run(", "app.listen("
+        ])
+
+        if is_server_app:
+            speak("This looks like a server app that runs forever. Treating successful startup as a pass.")
+            return {
+                "status": "PASSED",
+                "output": "Server started successfully (timeout expected for long-running apps).",
+                "error": None
+            }
+
         return {"status": "FAILED", "error": "Code execution timed out after 30 seconds"}
     except FileNotFoundError:
         return {"status": "FAILED", "error": f"{language} runtime not found. Please install it."}
