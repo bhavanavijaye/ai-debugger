@@ -27,35 +27,45 @@ async def debug_project(request: CodeRequest):
         filepath = file.get("path", "")
         content = file.get("content", "")
 
-        print(f"Processing: {filepath}")
+        print(f"📁 Processing: {filepath}")
+        print(f"📦 Content length received: {len(content)} chars")
 
-        # ✅ Fix 1: decode base64 content from GitHub
         try:
             decoded_content = base64.b64decode(content).decode("utf-8")
-        except Exception:
-            decoded_content = content  # fallback if already plain text
+            print(f"✅ Decoded content length: {len(decoded_content)} chars")
+            print(f"📄 First 100 chars: {decoded_content[:100]}")
+        except Exception as e:
+            decoded_content = content
+            print(f"⚠️ Base64 decode failed: {e}, using raw content")
 
         temp_path = f"temp_{filepath.replace('/', '_')}"
         with open(temp_path, "w", encoding="utf-8") as f:
             f.write(decoded_content)
+
+        print(f"💾 Wrote {len(decoded_content)} chars to {temp_path}")
 
         try:
             final_state = await loop.run_in_executor(
                 executor, debug_file, temp_path
             )
 
-            # ✅ Fix 2: extract fixed_code from agent state
             fixed_code = final_state.get("current_code", "")
+            print(f"🤖 Agent status: {final_state.get('status')}")
+            print(f"🔧 Fixed code length: {len(fixed_code)} chars")
+            print(f"🔁 Loop count: {final_state.get('loop_count')}")
 
             results.append({
                 "file": filepath,
                 "status": final_state.get("status", "completed"),
-                "fixed_code": fixed_code,          # ← n8n reads this
+                "fixed_code": fixed_code,
                 "loop_count": final_state.get("loop_count", 0),
                 "errors_found": final_state.get("errors", "")
             })
 
         except Exception as e:
+            print(f"❌ Agent crashed: {e}")
+            import traceback
+            traceback.print_exc()
             results.append({
                 "file": filepath,
                 "status": "failed",
@@ -66,10 +76,7 @@ async def debug_project(request: CodeRequest):
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
-    return {
-        "status": "completed",
-        "results": results
-    }
+    return {"status": "completed", "results": results}
 
 if __name__ == "__main__":
     import uvicorn
