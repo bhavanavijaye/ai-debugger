@@ -80,13 +80,27 @@ def run_code(filepath: str, language: str) -> dict:
     if not cmd:
         return {"error": f"Language {language} not supported for execution"}
 
-    try:
-        result = subprocess.run(
+    def _execute():
+        return subprocess.run(
             cmd,
             capture_output=True,
             text=True,
             timeout=30
         )
+
+    try:
+        result = _execute()
+
+        # Auto-install missing Python modules and retry once
+        if result.returncode != 0 and language == 'python' and "ModuleNotFoundError" in result.stderr:
+            import re
+            match = re.search(r"No module named '([^']+)'", result.stderr)
+            if match:
+                missing_pkg = match.group(1)
+                speak(f"Missing dependency detected: {missing_pkg}. Installing it now.")
+                install_result = install_package(missing_pkg)
+                if install_result.get("success"):
+                    result = _execute()  # retry after install
 
         if result.returncode == 0:
             speak("The code ran successfully! No errors found.")
